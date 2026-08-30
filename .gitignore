@@ -1,26 +1,21 @@
 # ========================================
 # OS
 # ========================================
-
 .DS_Store
 Thumbs.db
-
 
 # ========================================
 # IDE / Editor
 # ========================================
-
 .vscode/
 .idea/
 *.suo
 *.user
 *.userprefs
 
-
 # ========================================
 # Unity
 # ========================================
-
 # Unity generated folders
 [Ll]ibrary/
 [Tt]emp/
@@ -53,37 +48,44 @@ ServerData/
 # Crash reports
 sysinfo.txt
 
+# Build artifacts (追加)
+*.apk
+*.aab
+*.unitypackage
+
+# Crashlytics (追加・使用している場合)
+crashlytics-build.properties
 
 # ========================================
 # Laravel / PHP
 # ========================================
-
 /Server/**/.env
 /Server/**/.env.*
 !/Server/**/.env.example
-
 /Server/**/vendor/
 /Server/**/node_modules/
-
 /Server/**/storage/logs/*
 /Server/**/storage/framework/cache/*
 /Server/**/storage/framework/sessions/*
 /Server/**/storage/framework/views/*
-
 /Server/**/bootstrap/cache/*
 
+# Vite/Mix・シンボリックリンク (追加)
+/Server/**/public/hot
+/Server/**/public/storage
+
+# Composer private repo credentials (追加)
+/Server/**/auth.json
 
 # ========================================
 # Laravel testing
 # ========================================
-
 /Server/**/.phpunit.result.cache
-
+/Server/**/.phpunit.cache/
 
 # ========================================
 # Node
 # ========================================
-
 node_modules/
 npm-debug.log*
 yarn-debug.log*
