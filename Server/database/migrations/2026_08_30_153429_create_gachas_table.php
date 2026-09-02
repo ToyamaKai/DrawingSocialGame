@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('gachas', function (Blueprint $table) {
-            $table->unsignedAutoIncrement('id')->comment('ID');
+            $table->bigIncrements('id')->comment('ID');
             $table->string('gacha_name', 50)->comment('ガチャ名');
             $table->datetime('start_at')->comment('開始日時');
             $table->datetime('end_at')->nullable()->comment('終了日時');

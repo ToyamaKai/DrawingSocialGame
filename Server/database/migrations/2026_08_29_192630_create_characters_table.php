@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('characters', function (Blueprint $table) {
-            $table->unsignedAutoIncrement('id')->comment('ID');
+            $table->bigIncrements('id')->comment('ID');
             $table->string('character_name', 50)->comment('キャラクター名');
             $table->unsignedTinyInteger('rarity')->comment('レアリティ');
             $table->unsignedMediumInteger('attack')->comment('初期攻撃力');

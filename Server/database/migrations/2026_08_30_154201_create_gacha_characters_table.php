@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('gacha_characters', function (Blueprint $table) {
-            $table->unsignedAutoIncrement('id')->comment('ID');
+            $table->bigIncrements('id')->comment('ID');
             $table->unsignedBigInteger('gacha_id')->comment('ガチャID');
             $table->unsignedBigInteger('character_id')->comment('キャラクターID');
             $table->unsignedTinyInteger('weight')->comment('排出率');

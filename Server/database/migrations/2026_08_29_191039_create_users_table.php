@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->unsignedAutoIncrement('id')->comment('ID');
+            $table->bigIncrements('id')->comment('ID');
             $table->string('user_id', 16)->unique()->comment('ユーザーID');
             $table->string('user_name', 20)->comment('ユーザー名');
             $table->datetime('last_login_at')->nullable()->comment('最終ログイン日時');
