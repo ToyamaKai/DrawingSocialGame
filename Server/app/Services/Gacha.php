@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\Gacha;
-use App\Models\GachaCharacter;
+use App\Models\Gachas;
+use App\Models\Gacha_characters;
+use App\Models\GachaRarity;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -20,15 +21,22 @@ class GachaService
                 ->firstOrFail();
 
             // ガチャ取得
-            $gacha = Gacha::findOrFail($gachaId);
+            $gacha = Gachas::findOrFail($gachaId);
 
             // 石が足りるか確認
-            if ($user->stone < $gacha->ten_draw_cost) {
-                throw new RuntimeException('石が不足しています。');
-            }
+            // if ($user->stone < $gacha->ten_draw_cost) {
+            //     throw new RuntimeException('石が不足しています。');
+            // }
 
             // ガチャ対象キャラクター取得
-            $gachaCharacters = GachaCharacter::where('gacha_id', $gachaId)
+            $rarities = GachaRarity::where('gacha_id', $gachaId)->get();
+            if ($rarities->isEmpty() || $rarities->sum('draw_rate') !== 10000 || $rarities->contains(
+                fn (GachaRarity $rarity) => $rarity->pickup_rate > 10000
+            )) {
+                throw new RuntimeException('ガチャのレアリティ排出率が不正です。');
+            }
+
+            $gachaCharacters = Gacha_characters::where('gacha_id', $gachaId)
                 ->with('character')
                 ->get();
 
@@ -41,7 +49,16 @@ class GachaService
             // 10回抽選
             for ($i = 0; $i < 10; $i++) {
 
-                $gachaCharacter = $this->drawCharacter($gachaCharacters);
+                $rarity = $this->drawRarity($rarities);
+                $charactersInRarity = $gachaCharacters->filter(
+                    fn (Gacha_characters $gachaCharacter) => $gachaCharacter->character->rarity === $rarity->rarity
+                );
+
+                if ($charactersInRarity->isEmpty()) {
+                    throw new RuntimeException('レアリティに対応するキャラクターが存在しません。');
+                }
+
+                $gachaCharacter = $this->drawCharacter($charactersInRarity, $rarity->pickup_rate);
 
                 // ユーザーにキャラクター付与
                 $user->userCharacters()->create([
@@ -57,7 +74,7 @@ class GachaService
             }
 
             // 石を消費
-            $user->decrement('stone', $gacha->ten_draw_cost);
+            // $user->decrement('stone', $gacha->ten_draw_cost);
 
             return [
                 'remaining_stone' => $user->stone - $gacha->ten_draw_cost,
@@ -66,18 +83,45 @@ class GachaService
         });
     }
 
-    private function drawCharacter($gachaCharacters)
+    private function drawRarity($rarities): GachaRarity
     {
-        $random = mt_rand(1, 10000);
+        return $this->drawWeighted($rarities, 'draw_rate');
+    }
 
-        $total = 0;
+    private function drawCharacter($gachaCharacters, int $pickupRate): Gacha_characters
+    {
+        $pickupCharacters = $gachaCharacters->filter(fn (Gacha_characters $character) => $character->is_pickup);
+        $regularCharacters = $gachaCharacters->reject(fn (Gacha_characters $character) => $character->is_pickup);
 
-        foreach ($gachaCharacters as $gachaCharacter) {
+        if ($pickupCharacters->isNotEmpty() && $regularCharacters->isNotEmpty() && $pickupRate > 0) {
+            $group = mt_rand(1, 10000) <= $pickupRate ? $pickupCharacters : $regularCharacters;
+        } else {
+            $group = $pickupCharacters->isNotEmpty() ? $pickupCharacters : $regularCharacters;
+        }
 
-            $total += $gachaCharacter->draw_rate;
+        if ($group->isEmpty()) {
+            throw new RuntimeException('ガチャ対象が存在しません。');
+        }
 
-            if ($random <= $total) {
-                return $gachaCharacter;
+        return $group->random();
+    }
+
+    private function drawWeighted($items, string $weightColumn)
+    {
+        $total = $items->sum($weightColumn);
+        if ($total <= 0) {
+            throw new RuntimeException('ガチャ排出率が不正です。');
+        }
+
+        $random = mt_rand(1, $total);
+
+        $current = 0;
+
+        foreach ($items as $item) {
+            $current += $item->{$weightColumn};
+
+            if ($random <= $current) {
+                return $item;
             }
         }
 
