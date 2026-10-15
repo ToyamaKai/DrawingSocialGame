@@ -14,6 +14,15 @@ class Gacha_characters extends Model
     protected $fillable = [
         'gacha_id',
         'character_id',
-        'weight',
+        'is_pickup',
     ];
+
+    protected $casts = [
+        'is_pickup' => 'boolean',
+    ];
+
+    public function character()
+    {
+        return $this->belongsTo(Characters::class, 'character_id', 'id');
+    }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id')->comment('ID');
             $table->unsignedBigInteger('gacha_id')->comment('ガチャID');
             $table->unsignedBigInteger('character_id')->comment('キャラクターID');
-            $table->unsignedTinyInteger('weight')->comment('排出率');
+            $table->boolean('is_pickup')->default(false)->comment('ピックアップ対象か');
             $table->datetime('created_at')->comment('作成日時');
             $table->datetime('updated_at')->comment('更新日時');
             $table->datetime('deleted_at')->nullable()->comment('削除日時');

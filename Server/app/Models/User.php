@@ -22,6 +22,6 @@ class User extends Model
 
     public function userCharacters()
     {
-        return $this->hasMany(UserCharacter::class, 'user_id', 'id');
+        return $this->hasMany(User_characters::class, 'user_id', 'id');
     }
 }

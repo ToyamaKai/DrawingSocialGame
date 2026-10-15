@@ -21,4 +21,14 @@ class Gachas extends Model
         'start_at' => 'datetime',
         'end_at' => 'datetime',
     ];
+
+    public function rarities()
+    {
+        return $this->hasMany(GachaRarity::class, 'gacha_id', 'id');
+    }
+
+    public function characters()
+    {
+        return $this->hasMany(Gacha_characters::class, 'gacha_id', 'id');
+    }
 }

@@ -18,8 +18,12 @@ class Characters extends Model
         'hit_point',
     ];
 
+    protected $casts = [
+        'rarity' => 'integer',
+    ];
+
     public function userCharacters()
     {
-        return $this->hasMany(UserCharacter::class, 'character_id', 'id');
+        return $this->hasMany(User_characters::class, 'character_id', 'id');
     }
 }
